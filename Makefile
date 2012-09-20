@@ -9,7 +9,7 @@ OBJDIR := obj
 TESTDIR := $(SRC)/test
 TESTLOGS := test-log
 DEPENDDIR := obj/.depend
-SOURCEDIRS := $(SRC) $(SRC)/cp $(SRC)/bp $(SRC)/bpl $(SRC)/pn $(SRC)/cfg $(TESTDIR)
+SOURCEDIRS := $(SRC) $(SRC)/cp $(SRC)/bp $(SRC)/bpl $(SRC)/pn $(SRC)/cfg $(SRC)/nts $(TESTDIR)
 TOOLSDIR := tools
 
 BINDIR := bin
@@ -25,7 +25,9 @@ CAML_LIB_OBJ = \
 	PnAst PnParser PnLexer \
 	BpAst BpParser BpLexer BpUtils \
 	BplAst BplParser BplLexer BplUtils BplSeqFramework \
+	nts_functor nts_generic nts_types nts_int simplification nts \
 	Parikh \
+	BplToNts \
 	BplViolin \
 	PnToBpl \
 	BplEscAsync BplFifoSeq \

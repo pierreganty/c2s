@@ -117,6 +117,11 @@ let flags : flag_spec list = [
 	"New secret Violin option.",
 	["violin"],
 	false;
+
+	"bpl-to-nts", [],
+	"translation to nts of array-free goto Boogie program",
+	["language"],
+	false;
 	
 	"print", [File "-"],
 	"Print out the program.",
