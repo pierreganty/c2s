@@ -29,6 +29,7 @@ let rec nts_pprint_nts_typeinfo_genvar ( x : nts_genrel_var) =
     | NtsGenVar(NtsRVar ( vname ),_) ->vname^" :real "
     | NtsGenVar(NtsMiscType ( vname ),_) ->vname^" : No defined type"
     | NtsGenVar(NtsINdetVar vname, _) ->vname^" :nondet int" 
+    | _ -> failwith "Not implemented"
       
 
 let is_int_var v =
@@ -361,6 +362,7 @@ let boolean_relation r =
 	( primeless_arithm_express b) 
       | CntGenArithmUOp(_,a) ->  primeless_arithm_express a 
       | CntGenInvalidExp -> raise  Invalid_nts_expression
+      | _ -> failwith "Not implemented"
   in
   try
     primeless_arithm_express r; true
@@ -444,6 +446,8 @@ let rec is_gen_bool_det ( b : nts_gen_relation ) =
       let det_fg = is_gen_arithm_exp_a_function a in
       let det_fd = is_gen_arithm_exp_a_function b in
       det_fg && det_fd
+    | _ -> failwith "Not implemented"
+
 
 (* Does the arithmetic expression have a deterministic evalution, i.e.
 contains no CntNdet constructor *)	

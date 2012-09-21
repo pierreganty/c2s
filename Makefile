@@ -25,7 +25,7 @@ CAML_LIB_OBJ = \
 	PnAst PnParser PnLexer \
 	BpAst BpParser BpLexer BpUtils \
 	BplAst BplParser BplLexer BplUtils BplSeqFramework \
-	nts_functor nts_generic nts_types nts_int simplification nts \
+	nts_functor nts_generic nts_types ntsint simplification nts \
 	Parikh \
 	BplToNts \
 	BplViolin \

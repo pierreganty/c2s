@@ -152,6 +152,7 @@ struct
 	  if (String.compare name vname )==0 then
 	    raise (Found_genvar(ntvar))
 	  else ()
+        | _ -> failwith "Not implemented"
     in
     try
       List.iter (search_varname_iterator vname) nts_sys.nts_global_vars;
@@ -191,6 +192,7 @@ struct
 	  if (String.compare name vname )==0 then
 	    raise (Found_genvar(ntvar))
 	  else ()
+        | _ -> failwith "Not implemented"
     in
     try
       List.iter (search_varname_iterator vname) nts_sys.nts_global_vars;

@@ -42,6 +42,7 @@ let nts_pprint_nts_var (x : nts_var ) =
   match x with 
       NtsIVar( vname ) | NtsRVar ( vname ) | NtsMiscType ( vname ) 
     | NtsNVar (vname) | NtsBVar (vname) -> vname
+    | _ -> failwith "Not implemented"
   (*  | NtsArray (vname,size,_) -> Format.printf "%s[%d]" vname size*)
 
 
@@ -52,6 +53,8 @@ let rec nts_pprint_nts_typeinfo_var ( x :nts_var) =
     | NtsRVar ( vname ) ->vname^" :real "
     | NtsMiscType ( vname ) ->vname^" : No defined type"
    (* | NtsArray ( name, size , base_type) -> "Tab : "^vname^"["^(Format.printf "%d" size)^"] "^(nts_pprint_nts_typeinfo_var base_type )*)
+    | _ -> failwith "Not implemented"
+
 
 
 let pprint_typeinfo_nts_var_list l =
@@ -592,6 +595,8 @@ let cnt_pprint_translabel ( tlabel : cnt_trans_label ) =
 
 	    | None -> funname^"("^(pprint_arg_list paramlist)^")"
 	end
+    | _ -> failwith "Not implemented"
+
   
 	    
  let need_split_transition label_list =
@@ -1144,6 +1149,8 @@ distinct.*)
 	NtsIVar(s) ->  Hashtbl.hash s 
       | NtsRVar(s) ->  Hashtbl.hash s 
       | NtsMiscType(s) ->  Hashtbl.hash s 
+      | _ -> failwith "Not implemented"
+
 
   let hash_cnt_arithm_constructor (exp : cnt_arithm_exp ) =
     match exp with 
