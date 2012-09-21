@@ -62,21 +62,16 @@ let _ =
 			
 			| CFG p, ("cfg-to-presburger",_) -> BPL (Parikh.image_of_cfg p)
 			| BPL p, ("violin-instrument", [Op.Int k]) -> BPL (BplViolin.instrument k p)
-			(* | BPL p, ("bpl-to-nts", _) -> NTS (BplToNts.program
-                         * p) *)
+			| BPL p, ("bpl-to-nts", _) -> NTS (BplToNts.program p)
 
 			(* Back-end necessitites *)
 			| BP p, ("prepare-for-back-end",_) -> BP (BpUtils.prepare_for_back_end p)
-			| BPL p, ("prepare-for-back-end",_) -> 
-        BPL (BplUtils.Extensions.Program.pre_boogie p)
-			
-      | BPL p, ("seq-framework",_) -> BPL (BplSeqFramework.seq_framework p)
+			| BPL p, ("prepare-for-back-end",_) -> BPL (BplUtils.Extensions.Program.pre_boogie p)
+                        | BPL p, ("seq-framework",_) -> BPL (BplSeqFramework.seq_framework p)
 			| BPL p, ("esc-async",_) -> BPL (BplEscAsync.async_to_seq p)	
-			| BPL p, ("delay-bounding",[Op.Int rounds ; Op.Int delays]) -> 
-				BPL (BplAsyncToSeq.delay_bounding rounds delays p)
-      | BPL p, ("phase-bounding",[Op.Int phases ; Op.Int delays]) -> 
-        BPL (BplFifoSeq.phase_bounding phases delays p)
-      | BPL p, ("multi-to-single",_) -> BPL (BplMultiToSingle.multi_to_single p)
+			| BPL p, ("delay-bounding",[Op.Int rounds ; Op.Int delays]) -> BPL (BplAsyncToSeq.delay_bounding rounds delays p)
+                        | BPL p, ("phase-bounding",[Op.Int phases ; Op.Int delays]) -> BPL (BplFifoSeq.phase_bounding phases delays p)
+                        | BPL p, ("multi-to-single",_) -> BPL (BplMultiToSingle.multi_to_single p)
 			
 			(* Printing *)	
 			| CP p, ("print",[Op.File f]) -> print_to_file f (CpAst.Program.print p); CP p
@@ -123,7 +118,7 @@ let _ =
 						| CP _ -> "Concurrent" 
 						| BP _ -> "Boolean"
 						| BPL _ -> "Boogie" 
-						| NTS _ -> "nts" 
+						| NTS _ -> "Numerical Transition System" 
 						| PN _ -> "Petri net"
 						| CFG _ -> "Context-free grammar");
 				pgm

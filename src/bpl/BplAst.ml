@@ -949,7 +949,7 @@ end = struct
 	
 	let decls = id
   let global_vars = List.filter (fun d -> Declaration.kind d = "var")
-  let procs = List.filter (fun d -> Declaration.kind d = "proc")
+  let procs = List.filter (fun d -> Declaration.kind d = "procedure")
 
 	let map_fold fn a ds = List.map_fold_left fn a ds
 	let map_fold_procs fn a =

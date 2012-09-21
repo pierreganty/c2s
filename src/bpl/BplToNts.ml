@@ -4,7 +4,7 @@ open Prelude
 open Printf
 (* open Operators *)
 
-(* open Nts_types *)
+open Nts_types 
 open Ntsint.Nts_int
 
 let ident = id
@@ -15,11 +15,12 @@ module T = BplAst.Type
 let rec type_ = function
 	| T.Bool -> failwith
 	| T.Int -> failwith
+        | T.Bv _ -> failwith "Illegal type BV for array-free goto Boogie prorams."
 	| T.T (x,_) -> failwith
-	| T.Map (_,ts,t) -> failwith
-	| t -> failwith
+	| T.Map (_,ts,t) -> failwith "Not implemented"
+	(*| t -> failwith
 		  << sprintf "Illegal type `%s' ."
-		  <| T.to_string t
+		  <| T.to_string t*)
 
 module L = BplAst.Literal
 (* module LL = NtsAst.Literal *)
@@ -27,10 +28,10 @@ let lit = function
 	| L.True -> failwith
 	| L.False -> failwith
 	| L.Num n -> failwith
-	| L.Bv _ -> failwith "Illegal type BV for concurrent prorams."
+	| L.Bv _ -> failwith "Illegal type BV for array-free goto Boogie prorams."
 
 module Bop = BplAst.BinaryOp
-(* module BBop = BplAst.BinaryOp *)
+(* module BBop = NtsAst.BinaryOp *)
 let oper = function
 	| Bop.Iff -> failwith
 	| Bop.Imp -> failwith
@@ -47,7 +48,6 @@ let oper = function
 	| Bop.Times -> failwith
 	| Bop.Div -> failwith
 	| Bop.Mod -> failwith
-	
 	| op -> failwith
 		<< sprintf "Illegal oper `%s' for concurrent programs."
 		<| Bop.to_string op
@@ -88,9 +88,7 @@ let rec stmt s =
 	match s with
 	| ls,s -> begin
 		  match List.map ident ls, s with
-                  | ls, S.Goto ids -> []
-
-
+                  | ls, S.Goto ids -> [ ]
 		  (** ToDo -- need name of return variable here. *)
                   | ls, S.Return -> []
 		  | ls, S.Assign (xs,es) -> []
@@ -110,10 +108,42 @@ let attr (a,vs) = ident a, List.map (fun v -> Right v) vs
 
 module D = BplAst.Declaration
 (* module DD = NtsAst.Declaration *)
-let program _ = {
-        nts_system_name = ""; 
-        nts_global_vars = [];
-        nts_automata = Hashtbl.create 1;
-        nts_gvars_init = None;
+
+let create_automaton name = {
+        nts_automata_name = name; 
+        anot = anot_parser ();
+        init_states = Hashtbl.create 1;
+        final_states = Hashtbl.create 1;
+        error_states = Hashtbl.create 1;
+        input_vars = [];
+        output_vars = [];
+        local_vars = [];
+        transitions = Hashtbl.create 1;
 }
+
+let get_proc_names pgm =
+        let lprocs = BplAst.Program.procs pgm in
+        let ret_hash = Hashtbl.create 97 in
+        List.iter (fun c -> Hashtbl.add ret_hash (D.name c)
+        (create_automaton (D.name c)) ) lprocs; ret_hash
+
+let get_global_vars_names pgm =
+        let lvars = BplAst.Program.global_vars pgm in 
+        List.map ( fun d -> NtsGenVar(NtsIVar( (D.name d)),NtsUnPrimed)) lvars
+
+let program pgm = 
+        let pnames = get_proc_names pgm in 
+        let gnames = get_global_vars_names pgm in
+        let tmp =
+{
+        nts_system_name = "foo"; 
+        nts_global_vars = gnames;
+        nts_automata = pnames;
+        nts_gvars_init = None;
+        nts_system_threads = None;
+} in
+        printf "%s" (pprint_nts tmp) ;
+        tmp
+        
+
 
