@@ -10,6 +10,7 @@ type ast =
 	| BP of BpAst.Program.t
 	| BPL of BplAst.Program.t
 	| PN of PnAst.Program.t
+        | NTS of Ntsint.Nts_int.nts_system
 	| CFG of Cfg.Grammar.t
 
 let print_to_file f d =
@@ -61,7 +62,8 @@ let _ =
 			
 			| CFG p, ("cfg-to-presburger",_) -> BPL (Parikh.image_of_cfg p)
 			| BPL p, ("violin-instrument", [Op.Int k]) -> BPL (BplViolin.instrument k p)
-			| BPL p, ("bpl-to-nts", _) -> NTS (BplToNts.program p)
+			(* | BPL p, ("bpl-to-nts", _) -> NTS (BplToNts.program
+                         * p) *)
 
 			(* Back-end necessitites *)
 			| BP p, ("prepare-for-back-end",_) -> BP (BpUtils.prepare_for_back_end p)
@@ -121,6 +123,7 @@ let _ =
 						| CP _ -> "Concurrent" 
 						| BP _ -> "Boolean"
 						| BPL _ -> "Boogie" 
+						| NTS _ -> "nts" 
 						| PN _ -> "Petri net"
 						| CFG _ -> "Context-free grammar");
 				pgm

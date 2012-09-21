@@ -7,3 +7,5 @@ bin/c2s.exe
 *.output
 *.async.bpl
 *.tmproj
+*.swo
+*.swp

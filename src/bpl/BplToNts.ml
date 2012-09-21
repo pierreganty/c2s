@@ -2,12 +2,10 @@
 
 open Prelude
 open Printf
-open Operators
+(* open Operators *)
 
-(* include nts modules 
-open Nts_types
-open NtsInt.Nts_int
-*)
+(* open Nts_types *)
+open Ntsint.Nts_int
 
 let ident = id
 (* let nondet = sprintf "__nondet_%n" *)
@@ -70,9 +68,6 @@ let rec expr e = match e with
 	| E.Old e -> failwith
 	| E.FnApp (f,es) -> failwith
 	| E.Q (q,_,xs,_,_,e) -> failwith
-	| e -> failwith
-		  << sprintf "Illegal expression `%s' for concurrent programs."
-		  <| E.to_string e
 
 let rec decider d = match d with
 	| None -> failwith
@@ -98,12 +93,7 @@ let rec stmt s =
 
 		  (** ToDo -- need name of return variable here. *)
                   | ls, S.Return -> []
-
-		  | ls, S.Assign (xs,es)
-				when List.for_all (function E.Choice -> true | _ -> false) es
-					&& List.for_all (function Lv.Id _ -> true | _ -> false) xs
-                                        -> []
-                  | ls, S.Assign (xs,es) -> []
+		  | ls, S.Assign (xs,es) -> []
                   | ls, S.Assert (_,e) -> []
                   | ls, S.Assume (_,e) -> []
                   | ls, S.Call (_,p,es,lvs) -> []
@@ -111,7 +101,7 @@ let rec stmt s =
 				<< sprintf "Illegal statement `%s' for array-free goto Boogie programs."
 				<| S.to_string s
 
-	  end
+	          end (* matching the above begin *)
 
 module A = BplAst.Attribute
 (* module AA = NtsAst.Attribute *)
@@ -120,82 +110,10 @@ let attr (a,vs) = ident a, List.map (fun v -> Right v) vs
 
 module D = BplAst.Declaration
 (* module DD = NtsAst.Declaration *)
+let program _ = {
+        nts_system_name = ""; 
+        nts_global_vars = [];
+        nts_automata = Hashtbl.create 1;
+        nts_gvars_init = None;
+}
 
-let rec decl prg d =
-	match d with
-	| D.Type (ax,x,tx,Some t) ->
-		[]
-	| D.Type (ax,x,tx,None) ->
-		[]
-	| D.Var (ax,x,t) ->
-		[]
-	| D.Const (ax,x,t,e) ->
-                []
-	| D.Func (ax,f,(ps,t,e)) ->
-		[]
-        | D.Proc (ax,n,p) -> []
-	| D.Inv e ->
-		  eprintf (
-			  "Warning: losing invariant declaration in translation"
-			  ^^ " to Boogie:\n %s\n" )
-			  (E.to_string e);
-		  []
-
-and proc pgm ax n (ps,ts,reqs,ens,ds,ss) =
-
-	let ts = List.map (Tup2.map id type_) ts in
-	let rs = List.mapi
-		(fun i (x,t) ->
-			 match x with
-			 | None -> sprintf "__ret_%n" i
-			 | Some x -> x )
-		ts in
-
-
-	(* Translate returns to assign to return variables before the
-	   expression-free Boogie return statement. *)
-	let bpl_ss = 
-		List.flatten
- 		<< List.map stmt
-		<< Ls.map_stmts
-			(function
-			 | Ls.S (ls,S.Return es) when List.length es > 0 ->
-				   assert (List.length es = List.length ts);
-				   [ Ls.S (ls, S.Assign (List.map Lv.ident rs,
-										 es, None)) ;
-					 Ls.S ([], S.Return es) ]
-
-			 | s -> s :: [] )
-		<| ss in
-	let mods = failwith in
-	let params = 
-		List.map (function
-				  | (D.Var (_,x,t) | D.Const (_,x,t,None)) ->
-						ident x, type_ t
-				  | _ -> failwith "!" ) ps in
-	let mod_params = 
-		List.filter (((flip List.mem) mods) << fst) params in
-
-	let param_to_init x =
-		if List.mem x (List.map fst mod_params)
-		then sprintf "%s__init" x
-		else x in
-
-	let reqs = List.map (expr << E.map_ident param_to_init) reqs
-	and ens = List.map expr ens in
-
-	let inline_depth = Options.get_int "recursion-depth" in
-
-	(* NOTE: don't inline [main], nor any procedure marked as "modular". *)
-	let do_inline =
-		n <> "main"
-		&& not (List.exists ((=) "modular" << fst) ax)
-	in
-        (* I erased everything from here *)
-
-		
-
-let program pgm = 
-	List.flatten 
-	<< List.map (decl pgm) 
-	<| pgm
