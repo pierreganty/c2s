@@ -109,8 +109,56 @@ let attr (a,vs) = ident a, List.map (fun v -> Right v) vs
 module D = BplAst.Declaration
 (* module DD = NtsAst.Declaration *)
 
-let create_automaton name = {
-        nts_automata_name = name; 
+module P = BplAst.Procedure
+
+let los = function (* returns the list of statements *)
+        | D.Proc (_,_,p) -> P.stmts p
+        | _ -> failwith "should be a procedure"
+
+let create_trans_list ls =
+        let ret_hash = Hashtbl.create 97 in
+       (* let create_trans (prev_ls,prev_s) (ls,s) = *)
+        let inc_function x s =
+                match s with 
+                | [],_ -> failwith "empty list"
+                | labels,_ ->  (* a statement is a list of ids and a statement *)
+                                let src_state = control_of_id_param (!x) in
+                                if not (Hashtbl.mem ret_hash src_state) then
+                                        begin
+                                                let new_rel_hash = Hashtbl.create 97 in
+                                                let dest_state =
+                                                        control_of_id_param (List.hd labels) in
+                                                Hashtbl.add new_rel_hash dest_state [];
+                                                Hashtbl.add ret_hash src_state new_rel_hash
+                                        end 
+                                (* else 
+                                        begin
+                                        end *)
+                                ; x := (List.hd labels)
+                (* ; (ls,s) *)
+        in (* List.fold_left create_trans (List.hd ls) ls; ret_hash *)
+        let init_label ls = 
+                match ls with 
+                | [] -> failwith "another empty list"
+                | x::_ -> begin
+                        match x with
+                        | labels,_ when ( (List.length labels) > 0) -> (List.hd labels)
+                        | _ -> failwith "yet another empty list"
+                end 
+                in
+        let start_label = init_label ls in
+        let x = ref (start_label) in 
+        List.iter (inc_function x) ls ; ret_hash
+
+        
+
+let create_automaton proc = 
+        let lofstms = los proc in
+        match lofstms with 
+        |[] -> failwith "stmt list empty"
+        | _ -> 
+        {
+        nts_automata_name = (D.name proc); 
         anot = anot_parser ();
         init_states = Hashtbl.create 1;
         final_states = Hashtbl.create 1;
@@ -118,20 +166,29 @@ let create_automaton name = {
         input_vars = [];
         output_vars = [];
         local_vars = [];
-        transitions = Hashtbl.create 1;
+        transitions = create_trans_list lofstms;
 }
 
 let get_proc_names pgm =
         let lprocs = BplAst.Program.procs pgm in
         let ret_hash = Hashtbl.create 97 in
         List.iter (fun c -> Hashtbl.add ret_hash (D.name c)
-        (create_automaton (D.name c)) ) lprocs; ret_hash
+        (create_automaton c) ) lprocs; ret_hash
 
 let get_global_vars_names pgm =
         let lvars = BplAst.Program.global_vars pgm in 
         List.map ( fun d -> NtsGenVar(NtsIVar( (D.name d)),NtsUnPrimed)) lvars
 
 let program pgm = 
+        (* debug *)
+        let lprocs = BplAst.Program.procs pgm in
+        let list_of_stmts = 
+                if (List.length lprocs) = 0 then 
+                        failwith "miek!!"
+                else 
+                los (List.hd lprocs) in 
+        let _ = BplAst.LabeledStatement.print_seq list_of_stmts in
+        (* end debug *)
         let pnames = get_proc_names pgm in 
         let gnames = get_global_vars_names pgm in
         let tmp =
