@@ -930,7 +930,9 @@ module Program : sig
 	type t = Declaration.t list
   
   val decls : t -> Declaration.t list
+  val axioms : t -> Declaration.t list
   val global_vars : t -> Declaration.t list
+  val global_consts : t -> Declaration.t list
   val procs : t -> Declaration.t list
   val impls : t -> Declaration.t list
   
@@ -950,7 +952,9 @@ end = struct
 	type t = Declaration.t list
 	
 	let decls = id
+        let axioms = List.filter (fun d -> Declaration.kind d = "axiom")
         let global_vars = List.filter (fun d -> Declaration.kind d = "var")
+        let global_consts = List.filter (fun d -> Declaration.kind d = "const")
         let procs = List.filter (fun d -> Declaration.kind d = "procedure")
         let impls = List.filter (fun d -> Declaration.kind d = "implementation")
 

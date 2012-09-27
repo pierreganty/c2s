@@ -1,0 +1,25 @@
+The translation from Boogie programs to NTS is implemented in ../Bpl/BpltoNts.ml
+Its application is restricted to a subset of Boogie programs, namely those returned by c2s 
+using the options --seq-framework --delay-bounding #{rounds} #{delays} --prepare-for-back-end.
+
+There is absolutely no guarantee for anything that does not fall into that subset.
+
+It won't work if your Boogie files uses:
+
+- if or while statement
+- procedures that are not implemented with a dedicated implementation {} declaration
+- when you return this is because you executed a return statement
+- the entry label of each procedure is called anon0 by default (this is what Boogie does)
+
+- functions (especially if they return values) 
+- parameters of procedure other than simple value or variables
+- arrays
+- anything else then integer variables (encode them using integer and simulate their test/update)
+- all local declarations in implementation should be var (no const)
+
+The two first points can be taken care of automatically invoking Boogie with the
+options: /noinfer /noVerify /printInstrumented
+
+The four last points is the responsability of the user
+
+There are probably other limitations because the goal was to translate a set of examples with the minimum amount of time spent on it.
