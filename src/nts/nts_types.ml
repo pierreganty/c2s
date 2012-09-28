@@ -67,7 +67,7 @@ type nts_gen_arithm_unop = CntGenUMinus
 type nts_gen_bool_binop = CntGenBAnd 
 			  | CntGenBOr
  			 
-
+(* used in arrays only *)
 type cnt_arithm_exp = CntCst of Big_int.big_int
 		      | CntNdet
 		      | CntNdetVar of string (* non deterministic value *)
@@ -110,14 +110,6 @@ and fixed_size_nts_array = FixedSizeBasicTypeNtsArray of
 				 
 type nts_array_var = NtsArrayVar of string * nts_array
 
-type cnt_bool = CntBool of cnt_binop *  cnt_arithm_exp * cnt_arithm_exp
-		| CntNot of cnt_bool
-		| CntBTrue
-		| CntBFalse
-		| CntBAnd of  cnt_bool * cnt_bool
-		| CntBOr of cnt_bool * cnt_bool
-
-
 type nts_gen_relation = 
     CntGenRel of cnt_binop * nts_genrel_arithm_exp  * nts_genrel_arithm_exp
   | CntGenRelComp of nts_gen_bool_binop * nts_gen_relation * nts_gen_relation
@@ -126,7 +118,30 @@ type nts_gen_relation =
   | CntGenFalse
   | CntQVarsGenRel of nts_genrel_var list * nts_quantifier * nts_gen_relation   
 
-(* Deprecated type cnt_trans_label *)
+
+
+(* Generic type definition for NTS lib transitions  *)
+type nts_trans_label = CntGenGuard of nts_gen_relation
+		       
+		       | CntGenCall of string * nts_genrel_var list option * nts_genrel_arithm_exp list
+		      
+		       
+		       | CntGenHavoc of nts_genrel_var list (* The value of the listed 
+						 variables are not copied.
+						 See NTL documentation.
+					       *)
+		             
+
+(* DEPRECATED*)
+type cnt_bool = CntBool of cnt_binop *  cnt_arithm_exp * cnt_arithm_exp
+		| CntNot of cnt_bool
+		| CntBTrue
+		| CntBFalse
+		| CntBAnd of  cnt_bool * cnt_bool
+		| CntBOr of cnt_bool * cnt_bool
+
+
+(* DEPRECATED type cnt_trans_label *)
 type cnt_trans_label = CntGuard of cnt_bool
 		       | CntGuardIf of cnt_bool (* We shall be able to 
 						make the distinction between
@@ -144,17 +159,3 @@ type cnt_trans_label = CntGuard of cnt_bool
 					       *)
 		       | CntGenGuard of nts_gen_relation
 
-
-
-
-(* Generic type definition for NTS lib transitions  *)
-type nts_trans_label = CntGenGuard of nts_gen_relation
-		       
-		       | CntGenCall of string * nts_genrel_var list option * nts_genrel_arithm_exp list
-		      
-		       
-		       | CntGenHavoc of nts_genrel_var list (* The value of the listed 
-						 variables are not copied.
-						 See NTL documentation.
-					       *)
-		             
