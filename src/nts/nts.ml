@@ -158,7 +158,7 @@ let pprint_typeinfo_nts_var_list l =
 let rec size_arithm_exp ( exp : cnt_arithm_exp ) =
   match exp with 
        CntCst(_) -> 1
-    | CntNdet(_) -> 1
+    | CntNdet -> 1
     | CntNdetVar(_) -> 1
     | CntSymCst ( _ ) -> 1
     | CntVar (_) -> 1
